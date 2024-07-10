@@ -20,12 +20,9 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     SpotRepository spotRepository1;
     @Override
     public ParkingLot addParkingLot(String name, String address) {
-        ParkingLot parkingLot = new ParkingLot();
-        parkingLot.setName(name);
-        parkingLot.setAddress(address);
+        ParkingLot parkingLot = new ParkingLot(name, address);
         parkingLotRepository1.save(parkingLot);
         return parkingLot;
-
     }
 
     @Override
