@@ -17,6 +17,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
+        if(!PaymentMode.isValidEnum(mode.toUpperCase())){
+            throw new Exception("Payment mode not detected");
+        }
           Payment payment = new Payment();
           payment.setReservation(reservationRepository2.findById(reservationId).get());
           payment.setPaymentMode(PaymentMode.valueOf(mode.toUpperCase()));
