@@ -32,14 +32,10 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new Exception("Cannot make reservation"));
         User user = userRepository3.findById(userId)
                 .orElseThrow(() -> new Exception("Cannot make reservation"));
-        List<Spot> spots = spotRepository3.findAll();
+        List<Spot> spots = spotRepository3.findByOccupiedFalse();
 
         Spot spot = null;
         for (Spot s : spots) {
-            if (s.getOccupied()) {
-                continue;
-            }
-
             if (canPark(s, numberOfWheels)) {
                 if (spot == null) {
                     spot = s;
@@ -64,7 +60,8 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean canPark(Spot spot, Integer numberOfWheels) {
         switch (numberOfWheels) {
             case 2:
-                return spot.getSpotType().equals(SpotType.TWO_WHEELER);
+                return spot.getSpotType().equals(SpotType.TWO_WHEELER) ||
+                        spot.getSpotType().equals(SpotType.FOUR_WHEELER);
             case 4:
                 return spot.getSpotType().equals(SpotType.FOUR_WHEELER);
             default:
