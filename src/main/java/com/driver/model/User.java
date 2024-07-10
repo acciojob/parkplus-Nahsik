@@ -18,6 +18,10 @@ public class User {
     private String phoneNumber;
     private String password;
 
+    public User() {
+        reservationList = new ArrayList<>();
+    }
+
     public User(String name, String phoneNumber, String password) {
         this.name = name;
         this.phoneNumber = phoneNumber;
