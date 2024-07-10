@@ -19,7 +19,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
           Payment payment = new Payment();
           payment.setReservation(reservationRepository2.findById(reservationId).get());
-          payment.setPaymentMode(PaymentMode.valueOf(mode));
+          payment.setPaymentMode(PaymentMode.valueOf(mode.toUpperCase()));
           payment.setPaymentCompleted(true);
           paymentRepository2.save(payment);
           return payment;
