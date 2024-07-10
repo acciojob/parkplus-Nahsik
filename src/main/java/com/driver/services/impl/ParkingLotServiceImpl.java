@@ -6,11 +6,14 @@ import com.driver.model.SpotType;
 import com.driver.repository.ParkingLotRepository;
 import com.driver.repository.SpotRepository;
 import com.driver.services.ParkingLotService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class ParkingLotServiceImpl implements ParkingLotService {
@@ -18,33 +21,44 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     ParkingLotRepository parkingLotRepository1;
     @Autowired
     SpotRepository spotRepository1;
+
     @Override
     public ParkingLot addParkingLot(String name, String address) {
-        ParkingLot parkingLot = new ParkingLot(name, address);
-        parkingLotRepository1.save(parkingLot);
-        return parkingLot;
+        return parkingLotRepository1.save(new ParkingLot(name, address));
     }
 
     @Override
     public Spot addSpot(int parkingLotId, Integer numberOfWheels, Integer pricePerHour) {
-           ParkingLot parkingLot = parkingLotRepository1.findById(parkingLotId).get();
-            Spot spot = new Spot();
-            spot.setParkingLot(parkingLot);
-            spot.setPricePerHour(pricePerHour);
+        Spot spot = new Spot();
 
-            switch (numberOfWheels) {
-                case 2:
-                    spot.setSpotType(SpotType.TWO_WHEELER);
-                    break;
-                case 4:
-                    spot.setSpotType(SpotType.FOUR_WHEELER);
-                    break;
-                default:
-                    spot.setSpotType(SpotType.OTHERS);
-                    break;
-            }
-            spotRepository1.save(spot);
-            return spot;
+        Optional<ParkingLot> optionalParkingLot = parkingLotRepository1.findById(parkingLotId);
+        if (!optionalParkingLot.isPresent()) {
+            throw new RuntimeException("Invalid Parking ID");
+        }
+
+        ParkingLot parkingLot = optionalParkingLot.get();
+
+        switch (numberOfWheels) {
+            case 2:
+                spot.setSpotType(SpotType.TWO_WHEELER);
+                break;
+            case 4:
+                spot.setSpotType(SpotType.FOUR_WHEELER);
+                break;
+            default:
+                spot.setSpotType(SpotType.OTHERS);
+                break;
+        }
+        spot.setPricePerHour(pricePerHour);
+        spot.setOccupied(false);
+        spot.setReservationList(new ArrayList<>());
+        spot.setParkingLot(parkingLot);
+
+        parkingLot.getSpotList().add(spot);
+        //testing with just saving parking
+
+        parkingLotRepository1.save(parkingLot);
+        return spot;
     }
 
     @Override
@@ -54,14 +68,29 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     public Spot updateSpot(int parkingLotId, int spotId, int pricePerHour) {
-        Spot spot = spotRepository1.findById(spotId).get();
+        Optional<ParkingLot> optionalParkingLot = parkingLotRepository1.findById(parkingLotId);
+        if (!optionalParkingLot.isPresent()) {
+            throw new RuntimeException("Invalid Parking ID");
+        }
+        ParkingLot parkingLot = optionalParkingLot.get();
+
+        Spot spot = null;
+        for (Spot spt : parkingLot.getSpotList()) {
+            if (spt.getId() == spotId) {
+                spot = spt;
+                break;
+            }
+        }
+        if (spot == null) {
+            throw new RuntimeException("Invalid Spot ID");
+        }
         spot.setPricePerHour(pricePerHour);
-        spotRepository1.save(spot);
-        return spot;
+
+        return spotRepository1.save(spot);
     }
 
     @Override
-        public void deleteParkingLot(int parkingLotId) {
+    public void deleteParkingLot(int parkingLotId) {
         parkingLotRepository1.deleteById(parkingLotId);
     }
 }
