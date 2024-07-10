@@ -58,14 +58,9 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private boolean canPark(Spot spot, Integer numberOfWheels) {
-        switch (numberOfWheels) {
-            case 2:
-                return spot.getSpotType().equals(SpotType.TWO_WHEELER) ||
-                        spot.getSpotType().equals(SpotType.FOUR_WHEELER);
-            case 4:
-                return spot.getSpotType().equals(SpotType.FOUR_WHEELER);
-            default:
-                return spot.getSpotType().equals(SpotType.OTHERS);
-        }
+
+        return spot.getSpotType() == SpotType.OTHERS ||
+                (spot.getSpotType() == SpotType.FOUR_WHEELER && numberOfWheels <= 4) ||
+                (spot.getSpotType() == SpotType.TWO_WHEELER && numberOfWheels <= 2);
     }
 }
